@@ -6,4 +6,8 @@ Router.post("/", (request, response) =>
   UserController.new(request.body, response)
 );
 
+Router.delete("/:id", (request, response) =>
+  UserController.delete(request, response)
+);
+
 module.exports = Router;
