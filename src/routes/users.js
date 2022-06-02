@@ -10,8 +10,6 @@ Router.delete("/:id", (request, response) =>
   UserController.delete(request, response)
 );
 
-Router.get("/", (request, response) =>
-  UserController.delete(request, response)
-);
+Router.get("/", (request, response) => UserController.get(request, response));
 
 module.exports = Router;
