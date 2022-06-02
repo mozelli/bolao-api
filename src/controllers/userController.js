@@ -1,28 +1,15 @@
-const User = require("../models/User");
+const { db } = require("../database/index.js");
+const User = db.collection("users");
 
 module.exports = {
-  // Post
-  async new(body, response) {
+  async new(request, response) {
     try {
-      const user = await User.create(body);
+      const user = await User.add(request.body);
       return response.status(200).json(user);
     } catch (error) {
-      return response.status(500).json({
+      return response.status(200).json({
         error: error.message,
-        message: "Request to add new user failed.",
-      });
-    }
-  },
-
-  // Delete
-  async delete(request, response) {
-    try {
-      const user = await User.deleteOne({ id: request.params.id });
-      return response.status(200).json(user);
-    } catch (error) {
-      return response.status(500).json({
-        error: error.message,
-        message: "Request to delete user failed.",
+        message: "The create new user request failed.",
       });
     }
   },
