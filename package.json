@@ -10,6 +10,8 @@
   "author": "João Mozelli Neto <joaomozelli@hotmail.com>",
   "license": "MIT",
   "dependencies": {
+    "axios": "^0.27.2",
+    "cheerio": "^1.0.0-rc.11",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
     "firebase": "^9.8.2",
