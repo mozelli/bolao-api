@@ -5,12 +5,16 @@ const TeamSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  city: {
+  shield: {
     type: String,
     required: true,
   },
-  state: {
-    type: String,
+  points: {
+    type: Number,
+    required: true,
+  },
+  position: {
+    type: Number,
     required: true,
   },
   createdAt: {

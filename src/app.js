@@ -8,7 +8,6 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
 app.use("/users", usersRoutes);
 app.use("/teams", teamsRoutes);
 app.use("/matches", matchesRoutes);
