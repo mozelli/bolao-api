@@ -4,8 +4,16 @@ module.exports = {
   // Post
   async new(body, response) {
     try {
-      const user = await User.create(body);
-      return response.status(200).json(user);
+      const birthday = Date(body.year, body.month, body.day, 0, 0, 0, 0);
+      let data = {
+        name: body.name,
+        lastname: body.lastname,
+        birthday,
+        email: body.email,
+        password: body.password,
+      };
+      const user = await User.create(data);
+      return response.status(200).json({ email: user.email, id: user.id });
     } catch (error) {
       return response.status(500).json({
         error: error.message,
