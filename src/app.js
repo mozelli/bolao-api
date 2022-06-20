@@ -3,10 +3,12 @@ const express = require("express");
 const usersRoutes = require("./routes/users");
 const teamsRoutes = require("./routes/teams");
 const matchesRoutes = require("./routes/matches");
+const cors = require("cors");
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
 app.use("/users", usersRoutes);
 app.use("/teams", teamsRoutes);
