@@ -5,9 +5,26 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  lastname: {
+    type: String,
+    required: true,
+  },
+  birthday: {
+    type: Date,
+    require: true,
+  },
   email: {
     type: String,
     required: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+  state: {
+    type: String,
+    required: true,
+    default: "awaiting_validation",
   },
   createdAt: {
     type: Date,
