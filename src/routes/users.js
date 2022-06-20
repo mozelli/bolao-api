@@ -6,6 +6,10 @@ Router.post("/", (request, response) =>
   UserController.new(request.body, response)
 );
 
+Router.get("/emailConfirmation/:token", (request, response) =>
+  UserController.emailConfirmation(request, response)
+);
+
 Router.delete("/:id", (request, response) =>
   UserController.delete(request, response)
 );

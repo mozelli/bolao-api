@@ -20,6 +20,11 @@ const UserSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
+    select: false,
+  },
+  emailConfirmation: {
+    type: String,
+    select: false,
   },
   state: {
     type: String,
