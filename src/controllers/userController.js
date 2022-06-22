@@ -11,7 +11,7 @@ module.exports = {
       const key = crypto.createHash("sha256").update(body.email).digest("hex");
 
       const encriptedPassword = crypto
-        .createHmac("sha256", key)
+        .createHmac(process.env.ENCRYPT_ALGORITHM, key)
         .update(body.password)
         .digest("hex");
 
@@ -30,11 +30,11 @@ module.exports = {
       // const user = await User.create(data);
       User.create(data).then((newUser) => {
         var transport = nodemailer.createTransport({
-          host: "smtp.mailtrap.io",
-          port: 2525,
+          host: process.env.MAILER_HOST,
+          port: process.env.MAILER_PORT,
           auth: {
-            user: "f2245b0a38a425",
-            pass: "fd4f3ccb449fb0",
+            user: process.env.MAILER_USER,
+            pass: process.env.MAILER_PASSWORD,
           },
         });
 
@@ -116,13 +116,13 @@ module.exports = {
       const key = crypto.createHash("sha256").update(email).digest("hex");
 
       const encriptedPassword = crypto
-        .createHmac("sha256", key)
+        .createHmac(process.env.ENCRYPT_ALGORITHM, key)
         .update(password)
         .digest("hex");
 
       if (user.password === encriptedPassword) {
         const token = jwt.sign({ id: user.id }, process.env.API_HASH, {
-          expiresIn: 86400,
+          expiresIn: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
         });
         user.password = undefined;
         return response.status(200).json({ user, token });
