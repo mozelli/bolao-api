@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
 // const mailer = require("../modules/mailer");
 const nodemailer = require("nodemailer");
 
@@ -120,8 +121,11 @@ module.exports = {
         .digest("hex");
 
       if (user.password === encriptedPassword) {
+        const token = jwt.sign({ id: user.id }, process.env.API_HASH, {
+          expiresIn: 86400,
+        });
         user.password = undefined;
-        return response.status(200).json(user);
+        return response.status(200).json({ user, token });
       } else {
         return response.status(400).json({ message: "Password imvalid." });
       }
