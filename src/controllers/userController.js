@@ -1,68 +1,54 @@
 const User = require("../models/User");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
-// const mailer = require("../modules/mailer");
-const nodemailer = require("nodemailer");
+const mailer = require("../modules/mailer");
+const encryptor = require("../libs/encryptor");
 
 module.exports = {
   // Post
-  async new(body, response) {
+  async new(request, response) {
     try {
-      const key = crypto.createHash("sha256").update(body.email).digest("hex");
+      const key = encryptor.email(request.body.email);
 
-      const encriptedPassword = crypto
-        .createHmac(process.env.ENCRYPT_ALGORITHM, key)
-        .update(body.password)
-        .digest("hex");
+      const encriptedPassword = encryptor.generatePassword(
+        request.body.password,
+        key
+      );
 
-      const token = crypto.randomBytes(20).toString("hex");
+      const token = encryptor.random(20);
 
-      const birthday = new Date(body.year, body.month, body.day, 0, 0, 0, 0);
+      const birthday = new Date(
+        request.body.year,
+        request.body.month,
+        request.body.day,
+        0,
+        0,
+        0,
+        0
+      );
 
-      let data = {
-        name: body.name,
-        lastname: body.lastname,
+      const data = {
+        name: request.body.name,
+        lastname: request.body.lastname,
         birthday,
-        email: body.email,
+        email: request.body.email,
         password: encriptedPassword,
         emailConfirmation: token,
       };
-      // const user = await User.create(data);
+
       User.create(data).then((newUser) => {
-        var transport = nodemailer.createTransport({
-          host: process.env.MAILER_HOST,
-          port: process.env.MAILER_PORT,
-          auth: {
-            user: process.env.MAILER_USER,
-            pass: process.env.MAILER_PASSWORD,
-          },
-        });
+        const sendEmail = mailer.emailValidation(request.body.email, token);
 
-        var message = {
-          from: "Meu Placar <noreplay@meuplacar.com.br>",
-          to: body.email,
-          subject: "Meu Placar - Email de confirmação.",
-          text: `Este é um e-mail de confirmação. Token: ${token}`,
-          html:
-            "<p>Link de confirmação:</p><a href='http:localhost:4444/users/emailConfirmation/" +
-            token +
-            "'>Clique aqui</a>",
-        };
+        if (sendEmail.error) {
+          return response.status(400).json({
+            error: sendEmail.nodemailerErrorMessage,
+            message: sendEmail.message,
+          });
+        }
 
-        transport.sendMail(message, function (err) {
-          if (err) {
-            return response.status(400).json({
-              error: err,
-              message:
-                "The user was created but cannot send the confirmation email.",
-            });
-          } else {
-            return response.status(200).json({
-              email: newUser.email,
-              id: newUser.id,
-              message: "User registered. System awaiting email confirmation.",
-            });
-          }
+        return response.status(200).json({
+          email: newUser.email,
+          message: sendEmail.message,
         });
       });
     } catch (error) {
@@ -140,7 +126,7 @@ module.exports = {
   async delete(request, response) {
     try {
       const user = await User.deleteOne({ id: request.params.id });
-      return response.status(200).json(user);
+      return response.status(200).json({ user, message: "User deleted." });
     } catch (error) {
       return response.status(500).json({
         error: error.message,
