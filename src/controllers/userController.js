@@ -7,14 +7,23 @@ module.exports = {
   // Post
   async new(body, response) {
     try {
+      const key = crypto.createHash("sha256").update(body.email).digest("hex");
+
+      const encriptedPassword = crypto
+        .createHmac("sha256", key)
+        .update(body.password)
+        .digest("hex");
+
       const token = crypto.randomBytes(20).toString("hex");
-      const birthday = Date(body.year, body.month, body.day, 0, 0, 0, 0);
+
+      const birthday = new Date(body.year, body.month, body.day, 0, 0, 0, 0);
+
       let data = {
         name: body.name,
         lastname: body.lastname,
         birthday,
         email: body.email,
-        password: body.password,
+        password: encriptedPassword,
         emailConfirmation: token,
       };
       // const user = await User.create(data);
@@ -93,6 +102,33 @@ module.exports = {
       return response
         .status(400)
         .json({ error, message: "Cannot verify the email. Try again." });
+    }
+  },
+
+  async userAuthenticate(request, response) {
+    const { email, password } = request.body;
+    const user = await User.findOne({ email }).select("+password");
+
+    if (!user) {
+      return response.status(400).json({ message: "User not found" });
+    } else if (user.state === "confirmed_email") {
+      const key = crypto.createHash("sha256").update(email).digest("hex");
+
+      const encriptedPassword = crypto
+        .createHmac("sha256", key)
+        .update(password)
+        .digest("hex");
+
+      if (user.password === encriptedPassword) {
+        user.password = undefined;
+        return response.status(200).json(user);
+      } else {
+        return response.status(400).json({ message: "Password imvalid." });
+      }
+    } else {
+      return response
+        .status(400)
+        .json({ message: "E-mail awaiting for validation." });
     }
   },
 
