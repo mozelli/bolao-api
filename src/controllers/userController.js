@@ -8,7 +8,7 @@ module.exports = {
   // Post
   async new(request, response) {
     try {
-      const key = encryptor.email(request.body.email);
+      const key = encryptor.hashSHA(request.body.email);
 
       const encriptedPassword = encryptor.generatePassword(
         request.body.password,
@@ -60,7 +60,6 @@ module.exports = {
   },
 
   async emailConfirmation(request, response) {
-    // return response.send(request.params.token);
     try {
       User.findOne({ emailConfirmation: request.params.token })
         .then((userFound) => {
@@ -99,7 +98,8 @@ module.exports = {
     if (!user) {
       return response.status(400).json({ message: "User not found" });
     } else if (user.state === "confirmed_email") {
-      const key = crypto.createHash("sha256").update(email).digest("hex");
+      // const key = crypto.createHash("sha256").update(email).digest("hex");
+      const key = encryptor.hashSHA(email);
 
       const encriptedPassword = crypto
         .createHmac(process.env.ENCRYPT_ALGORITHM, key)
@@ -107,9 +107,12 @@ module.exports = {
         .digest("hex");
 
       if (user.password === encriptedPassword) {
-        const token = jwt.sign({ id: user.id }, process.env.API_HASH, {
-          expiresIn: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
-        });
+        // const token = jwt.sign({ id: user.id }, process.env.API_HASH, {
+        //   expiresIn: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
+        // });
+
+        const token = encryptor.createJWT(user.id);
+
         user.password = undefined;
         return response.status(200).json({ user, token });
       } else {

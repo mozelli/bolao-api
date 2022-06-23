@@ -1,9 +1,18 @@
 const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
 
 module.exports = {
-  email(email) {
-    const key = crypto.createHash("sha256").update(email).digest("hex");
-    return key;
+  createJWT(id) {
+    const token = jwt.sign({ id }, process.env.API_HASH, {
+      expiresIn: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
+    });
+
+    return token;
+  },
+
+  hashSHA(value) {
+    const hash = crypto.createHash("sha256").update(value).digest("hex");
+    return hash;
   },
 
   generatePassword(password, key) {
